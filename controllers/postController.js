@@ -56,8 +56,32 @@ async function store(req, res) {
   }
 }
 
-async function update(req, res){
+// Aggiorna un post tramite slug
+async function update(req, res) {
+  const { slug } = req.params;
+  const incomingData = req.body;
 
+  try {
+    // Controlla se il post esiste
+    const post = await prisma.post.findUnique({
+      where: { slug },
+    });
+
+    if (!post) {
+      return res.status(404).json({ error: 'Post non trovato' });
+    }
+
+    // Aggiorna il post con i nuovi dati
+    const updatedPost = await prisma.post.update({
+      data: incomingData,
+      where: { slug },
+    });
+
+    return res.json(updatedPost);
+  } catch (error) {
+    // Gestisci eventuali errori server o di validazione
+    res.status(500).json({ error: error.message });
+  }
 }
 
 async function destroy(req, res){
