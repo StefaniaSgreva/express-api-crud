@@ -3,7 +3,12 @@ const prisma = new PrismaClient();
 
 // Recupera tutti i post (con filtri opzionali)
 async function index(req, res) {
-  const { published, search } = req.query;
+  const { published, search, page = 1, limit = 10 } = req.query;
+
+    // Calcola quanti record saltare
+    const skip = (page - 1) * limit;
+
+    // Costruisci il filtro where per Prisma
   let where = {};
 
   if (published !== undefined) {
@@ -18,8 +23,25 @@ async function index(req, res) {
   }
 
   try {
-    const posts = await prisma.post.findMany({ where });
-    res.json(posts);
+    const posts = await prisma.post.findMany({ 
+        where,
+        skip: parseInt(skip),
+        take: parseInt(limit),
+        orderBy: {
+            createdAt: 'desc', 
+        },
+    });
+
+    // Conta il totale dei post che rispettano il filtro
+    const totalCount = await prisma.post.count({ where });
+
+    res.json({
+        page: parseInt(page),
+        limit: parseInt(limit),
+        totalCount,
+        totalPages: Math.ceil(totalCount / limit),
+        data: posts,
+    });
   } catch (error) {
     res.status(500).json({ error: 'Errore nel recupero dei post' });
   }
