@@ -37,8 +37,23 @@ async function show(req, res) {
   }
 }
 
-async function store(req, res){
-
+// Crea un nuovo post
+async function store(req, res) {
+  const newData = req.body;
+  try {
+    const newPost = await prisma.post.create({
+      data: {
+        title: newData.title,
+        slug: newData.slug,
+        image: newData.image,
+        content: newData.content,
+        published: newData.published,
+      }
+    });
+    res.status(201).json(newPost);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
 }
 
 async function update(req, res){
