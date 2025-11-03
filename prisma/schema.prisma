@@ -13,3 +13,14 @@ datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
 }
+
+model Post {
+  id        Int      @id @default(autoincrement())
+  title     String   @db.VarChar(100)
+  slug      String   @db.VarChar(255) @unique
+  image     String?  @db.VarChar(255)  // Optional field for image URL/path
+  content   String   @db.Text
+  published Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
