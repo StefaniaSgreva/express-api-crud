@@ -84,8 +84,31 @@ async function update(req, res) {
   }
 }
 
-async function destroy(req, res){
+// Elimina un post tramite slug
+async function destroy(req, res) {
+  const { slug } = req.params;
 
+  try {
+    // Controlla se il post esiste
+    const post = await prisma.post.findUnique({
+      where: { slug },
+    });
+
+    if (!post) {
+      return res.status(404).json({ error: 'Post non trovato' });
+    }
+
+    // Elimina il post
+    await prisma.post.delete({
+      where: { slug },
+    });
+
+    // Risposta con status 204 (No Content) dopo eliminazione
+    res.status(204).send();
+  } catch (error) {
+    // Gestisci eventuali errori server
+    res.status(500).json({ error: error.message });
+  }
 }
 
 module.exports = {
