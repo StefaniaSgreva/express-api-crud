@@ -25,8 +25,16 @@ async function index(req, res) {
   }
 }
 
-async function show(req, res){
-
+// Recupera un post tramite slug
+async function show(req, res) {
+  const { slug } = req.params;
+  try {
+    const post = await prisma.post.findUnique({ where: { slug } });
+    if (!post) return res.status(404).json({ error: 'Post non trovato' });
+    res.json(post);
+  } catch (error) {
+    res.status(500).json({ error: 'Errore nel recupero del post' });
+  }
 }
 
 async function store(req, res){
